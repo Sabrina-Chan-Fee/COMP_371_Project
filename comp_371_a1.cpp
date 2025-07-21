@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 #endif
 
     // Create Window and rendering context using GLFW, resolution is 800x600
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Comp371 - Lab 03", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(800, 600, "Hansel and Gretal's Maze", NULL, NULL);
     if (window == NULL)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -185,11 +185,14 @@ int main(int argc, char *argv[])
     }
 
     // Load Textures
-    GLuint brickTextureID = loadTexture("Textures/brick.jpg");
-    GLuint cementTextureID = loadTexture("Textures/cement.jpg");
+    GLuint grassTextureID = loadTexture("Textures/grass.jpg");
+    GLuint pavingTextureID = loadTexture("Textures/Paving_stone_texture.jpg");
 
     // Black background
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.19f, 0.21f, 0.50f, 1.0f);
+
+
 
     // Compile and link shaders here ...
     int colorShaderProgram = compileAndLinkShaders(getVertexShaderSource(), getFragmentShaderSource());
@@ -261,7 +264,7 @@ int main(int argc, char *argv[])
 
         glActiveTexture(GL_TEXTURE0);
         GLuint textureLocation = glGetUniformLocation(texturedShaderProgram, "textureSampler");
-        glBindTexture(GL_TEXTURE_2D, cementTextureID);
+        glBindTexture(GL_TEXTURE_2D, pavingTextureID);
         glUniform1i(textureLocation, 0); // Set our Texture sampler to user Texture Unit 0
 
         // Draw ground
@@ -271,7 +274,7 @@ int main(int argc, char *argv[])
         glDrawArrays(GL_TRIANGLES, 0, 36); // 36 vertices, starting at index 0
 
         // Draw pillars
-        // glBindTexture(GL_TEXTURE_2D, cementTextureID);
+        // glBindTexture(GL_TEXTURE_2D, pavingTextureID);
         // mat4 pillarWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 10.0f, 0.0f)) * scale(mat4(1.0f), vec3(2.0f, 20.0f, 2.0f));
         // setWorldMatrix(texturedShaderProgram, pillarWorldMatrix);
 
@@ -279,7 +282,7 @@ int main(int argc, char *argv[])
 
         // test
         //entrance
-        glBindTexture(GL_TEXTURE_2D, brickTextureID);
+        glBindTexture(GL_TEXTURE_2D, grassTextureID);
         mat4 newPillarWorldMatrix = translate(mat4(1.0f), vec3(1.0f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(6.0f, 2.0f, 1.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -289,7 +292,7 @@ int main(int argc, char *argv[])
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //exit
-        glBindTexture(GL_TEXTURE_2D, brickTextureID);
+        glBindTexture(GL_TEXTURE_2D, grassTextureID);
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(1.0f, 0.0f, 6.0f)) * scale(mat4(1.0f), vec3(6.0f, 2.0f, 1.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -299,7 +302,7 @@ int main(int argc, char *argv[])
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
          //right walls
-        glBindTexture(GL_TEXTURE_2D, brickTextureID);
+        // glBindTexture(GL_TEXTURE_2D, grassTextureID);
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(4.5f, 0.0f, 3.0f)) * scale(mat4(1.0f), vec3(1.0f, 2.0f, 5.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -327,25 +330,6 @@ int main(int argc, char *argv[])
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.5f)) * scale(mat4(1.0f), vec3(1.0f, 2.0f, 2.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // for (int i = 0; i < 20; ++i)
-        // {
-        //     for (int j = 0; j < 20; ++j)
-        //     {
-        //         // FIXME: it would be more efficient to set the cement texture and draw all pillars, then switch to brick texture and draw all pillar bases
-        //         // use cement texture for pillar
-        //         glBindTexture(GL_TEXTURE_2D, cementTextureID);
-        //         pillarWorldMatrix = translate(mat4(1.0f), vec3(-100.0f + i * 10.0f, 5.0f, -100.0f + j * 10.0f)) * scale(mat4(1.0f), vec3(1.0f, 10.0f, 1.0f));
-        //         setWorldMatrix(texturedShaderProgram, pillarWorldMatrix);
-        //         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //         // use brick texture for base
-        //         glBindTexture(GL_TEXTURE_2D, brickTextureID);
-        //         pillarWorldMatrix = translate(mat4(1.0f), vec3(-100.0f + i * 10.0f, 0.55f, -100.0f + j * 10.0f)) * rotate(mat4(1.0f), radians(180.0f), vec3(0.0f, 1.0f, 0.0f)) * scale(mat4(1.0f), vec3(1.1f, 1.1f, 1.1f));
-        //         setWorldMatrix(texturedShaderProgram, pillarWorldMatrix);
-        //         glDrawArrays(GL_TRIANGLES, 0, 36);
-        //     }
-        // }
 
         // Draw colored geometry
         glUseProgram(colorShaderProgram);
