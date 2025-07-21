@@ -12,7 +12,8 @@
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lGL",
                 "-lglfw",
-                "-lGLEW"
+                "-lGLEW",
+                "-lassimp"
             ],
             "options": {
                 "cwd": "${fileDirname}"
