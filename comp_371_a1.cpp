@@ -172,7 +172,9 @@ int main(int argc, char *argv[])
         glfwTerminate();
         return -1;
     }
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     glfwMakeContextCurrent(window);
 
     // Initialize GLEW
@@ -191,8 +193,6 @@ int main(int argc, char *argv[])
     // Black background
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearColor(0.19f, 0.21f, 0.50f, 1.0f);
-
-
 
     // Compile and link shaders here ...
     int colorShaderProgram = compileAndLinkShaders(getVertexShaderSource(), getFragmentShaderSource());
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
         // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // test
-        //entrance
+        // entrance
         glBindTexture(GL_TEXTURE_2D, grassTextureID);
         mat4 newPillarWorldMatrix = translate(mat4(1.0f), vec3(1.0f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(6.0f, 2.0f, 1.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //exit
+        // exit
         glBindTexture(GL_TEXTURE_2D, grassTextureID);
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(1.0f, 0.0f, 6.0f)) * scale(mat4(1.0f), vec3(6.0f, 2.0f, 1.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
@@ -301,32 +301,32 @@ int main(int argc, char *argv[])
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-         //right walls
+        // right walls
         // glBindTexture(GL_TEXTURE_2D, grassTextureID);
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(4.5f, 0.0f, 3.0f)) * scale(mat4(1.0f), vec3(1.0f, 2.0f, 5.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        //left wall
+        // left wall
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(-10.5f, 0.0f, 3.0f)) * scale(mat4(1.0f), vec3(1.0f, 2.0f, 5.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-           //first wall
+        // first wall
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 4.0f)) * scale(mat4(1.0f), vec3(9.0f, 2.0f, 0.5f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-           //second wall
+        // second wall
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(-9.0f, 0.0f, 2.5f)) * scale(mat4(1.0f), vec3(3.0f, 2.0f, 0.5f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-           //third wall
+        // third wall
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(-3.0f, 0.0f, 2.5f)) * scale(mat4(1.0f), vec3(6.0f, 2.0f, 0.5f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-           //4th wall
+        // 4th wall
         newPillarWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.5f)) * scale(mat4(1.0f), vec3(1.0f, 2.0f, 2.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -410,8 +410,16 @@ int main(int argc, char *argv[])
         cameraVerticalAngle -= dy * cameraAngularSpeed * dt;
 
         // Clamp vertical angle to [-85, 85] degrees
-        cameraVerticalAngle = std::max(-85.0f, std::min(85.0f, cameraVerticalAngle));
-
+        // cameraVerticalAngle = std::max(-85.0f, std::min(85.0f, cameraVerticalAngle));
+          cameraVerticalAngle = std::max(-85.0f, std::min(85.0f, cameraVerticalAngle));
+        if (cameraHorizontalAngle > 360)
+        {
+            cameraHorizontalAngle -= 360;
+        }
+        else if (cameraHorizontalAngle < -360)
+        {
+            cameraHorizontalAngle += 360;
+        }
         float theta = radians(cameraHorizontalAngle);
         float phi = radians(cameraVerticalAngle);
 
