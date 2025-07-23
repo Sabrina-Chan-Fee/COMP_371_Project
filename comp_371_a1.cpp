@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        newPillarWorldMatrix = translate(mat4(1.0f), vec3(-7.0f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(-6.0f, 2.0f, 1.0f));
+        newPillarWorldMatrix = translate(mat4(1.0f), vec3(-7.0f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(6.0f, 2.0f, 1.0f));
         setWorldMatrix(texturedShaderProgram, newPillarWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
         lastMousePosY = mousePosY;
 
         // Convert to spherical coordinates
-        const float cameraAngularSpeed = 60.0f;
+        const float cameraAngularSpeed = 6.0f;
         cameraHorizontalAngle -= dx * cameraAngularSpeed * dt;
         cameraVerticalAngle -= dy * cameraAngularSpeed * dt;
 
