@@ -21,6 +21,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+// for obj
+#include "OBJloader.h" //For loading .obj files
+
 using namespace glm;
 using namespace std;
 
@@ -148,6 +151,49 @@ void setWorldMatrix(int shaderProgram, mat4 worldMatrix)
     glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 }
 
+// for obj
+GLuint setupModelVBO(string path, int &vertexCount)
+{
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> UVs;
+
+    // read the vertex data from the model's OBJ file
+    loadOBJ(path.c_str(), vertices, normals, UVs);
+
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO); // Becomes active VAO
+    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+
+    // Vertex VBO setup
+    GLuint vertices_VBO;
+    glGenBuffers(1, &vertices_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, vertices_VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+    glEnableVertexAttribArray(0);
+
+    // Normals VBO setup
+    GLuint normals_VBO;
+    glGenBuffers(1, &normals_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+    glEnableVertexAttribArray(1);
+
+    // UVs VBO setup
+    GLuint uvs_VBO;
+    glGenBuffers(1, &uvs_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+    glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec2), &UVs.front(), GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid *)0);
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs, as we are using multiple VAOs)
+    vertexCount = vertices.size();
+    return VAO;
+}
 int main(int argc, char *argv[])
 {
     // Initialize GLFW and OpenGL version
@@ -247,11 +293,21 @@ int main(int argc, char *argv[])
     // Container for projectiles to be implemented in tutorial
     list<Projectile> projectileList;
 
-    glBindVertexArray(texturedCubeVAO);
+    //==============obj===========
+    // Setup models
+    string candyPath = "model/CandyCycles.obj";
+
+    int candyVertices;
+    GLuint candyVAO = setupModelVBO(candyPath, candyVertices);
+
+    int activeVAOVertices = candyVertices;
+    GLuint activeVAO = candyVAO;
 
     // Entering Main Loop
     while (!glfwWindowShouldClose(window))
     {
+        glBindVertexArray(texturedCubeVAO);
+
         // Frame time calculation
         float dt = glfwGetTime() - lastFrameTime;
         lastFrameTime += dt;
@@ -333,6 +389,12 @@ int main(int argc, char *argv[])
 
         // Draw colored geometry
         glUseProgram(colorShaderProgram);
+        //-------------------------
+
+        // obj render
+        glBindVertexArray(activeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, activeVAOVertices);
+        //------
 
         // Update and draw projectiles
         for (list<Projectile>::iterator it = projectileList.begin(); it != projectileList.end(); ++it)
@@ -411,7 +473,7 @@ int main(int argc, char *argv[])
 
         // Clamp vertical angle to [-85, 85] degrees
         // cameraVerticalAngle = std::max(-85.0f, std::min(85.0f, cameraVerticalAngle));
-          cameraVerticalAngle = std::max(-85.0f, std::min(85.0f, cameraVerticalAngle));
+        cameraVerticalAngle = std::max(-85.0f, std::min(85.0f, cameraVerticalAngle));
         if (cameraHorizontalAngle > 360)
         {
             cameraHorizontalAngle -= 360;
@@ -500,8 +562,10 @@ const char *getVertexShaderSource()
            "uniform mat4 projectionMatrix = mat4(1.0);"
            ""
            "out vec3 vertexColor;"
+           "out vec3 vertexNormal;" // for obj
            "void main()"
            "{"
+           "   vertexNormal= aNormal;" // for obj
            "   vertexColor = aColor;"
            "   mat4 modelViewProjection = projectionMatrix * viewMatrix * worldMatrix;"
            "   gl_Position = modelViewProjection * vec4(aPos.x, aPos.y, aPos.z, 1.0);"
@@ -511,11 +575,13 @@ const char *getVertexShaderSource()
 const char *getFragmentShaderSource()
 {
     return "#version 330 core\n"
+           "in vec3 vertexNormal;" // for obj
            "in vec3 vertexColor;"
            "out vec4 FragColor;"
            "void main()"
            "{"
-           "   FragColor = vec4(vertexColor.r, vertexColor.g, vertexColor.b, 1.0f);"
+           "   FragColor = vec4(0.5f* vertexNormal +vec3(0.5f),1.0f);" // TODO 2 Use the normals as fragment colors
+           //    "   FragColor = vec4(vertexColor.r, vertexColor.g, vertexColor.b, 1.0f);"
            "}";
 }
 
